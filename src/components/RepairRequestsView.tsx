@@ -15,6 +15,7 @@ interface RepairRequestsViewProps {
   currentUserName: string;
   addAuditLog: (action: string, details: string) => void;
   triggerNotification: (title: string, message: string, type: 'info' | 'warning' | 'danger' | 'success') => void;
+  triggerLineAlert?: (eventType: 'breakdown' | 'work_order_assign' | 'work_order_complete' | 'pm_done' | 'general', data: any) => void;
   onNavigateToWorkOrderWithReq: (reqId: string) => void;
 }
 
@@ -26,6 +27,7 @@ export default function RepairRequestsView({
   currentUserName,
   addAuditLog,
   triggerNotification,
+  triggerLineAlert,
   onNavigateToWorkOrderWithReq
 }: RepairRequestsViewProps) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -78,6 +80,26 @@ export default function RepairRequestsView({
     };
 
     setRequests(prev => [newRequest, ...prev]);
+
+    const machine = machines.find(m => m.id === machineId);
+    const machineName = machine ? machine.name : machineId;
+    const machineCode = machine ? machine.id : undefined;
+    const location = machine ? machine.location : undefined;
+
+    // Trigger LINE Alert
+    if (triggerLineAlert) {
+      triggerLineAlert('breakdown', {
+        title: `มีงานแจ้งซ่อมเครื่องจักรชำรุด [${nextId}]`,
+        machineName,
+        machineCode,
+        location,
+        priority,
+        symptom,
+        requester: currentUserName,
+        imageUrl: attachmentUrl || undefined,
+        dateTime: `${newRequest.requestDate} ${newRequest.requestTime}`
+      });
+    }
 
     // Push Notification
     triggerNotification(

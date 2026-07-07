@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   User, Machine, RepairRequest, WorkOrder, SparePart, 
   PreventiveMaintenance, MaintenanceSchedule, SpareTransaction, 
-  SystemNotification, AuditLog, UserRole
+  SystemNotification, AuditLog, UserRole, LINEConfig, EmailConfig
 } from './types';
 import {
   INITIAL_USERS, DEPARTMENTS, INITIAL_MACHINES, INITIAL_SPARE_PARTS,
@@ -28,6 +28,7 @@ import ReportsView from './components/ReportsView';
 import UsersView from './components/UsersView';
 import NotificationsSettingsView from './components/NotificationsSettingsView';
 import SqlSchemaView from './components/SqlSchemaView';
+import { sendLineAlert } from './lib/lineNotification';
 
 import { Shield, Eye, EyeOff, KeyRound, Hammer, HelpCircle } from 'lucide-react';
 import { seedDatabaseIfEmpty, loadCollection, saveDocument } from './lib/firebase';
@@ -279,10 +280,13 @@ export default function App() {
   };
 
   // Shared notification configuration states
-  const [lineConfig, setLineConfig] = useState({
+  const [lineConfig, setLineConfig] = useState<LINEConfig>({
     isEnabled: true,
     token: 'LN_MMS_DEV_TOKEN_2026_X',
-    recipientGroup: 'สตาฟช่างแผนกบำรุงรักษา A'
+    recipientGroup: 'สตาฟช่างแผนกบำรุงรักษา A',
+    apiMode: 'notify',
+    channelAccessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJsaW5lIiwiZXhwIjoxNzgxNTUwMjAwfQ.example_token_mms',
+    toUserIdOrGroupId: 'C8a9d18080c3b035fd771234abcd5678'
   });
   const [emailConfig, setEmailConfig] = useState({
     isEnabled: false,
@@ -333,6 +337,24 @@ export default function App() {
       saveDocument('audit_logs', newLog).catch(console.error);
       return next;
     });
+  };
+
+  // Core LINE Notification Trigger
+  const triggerLineAlert = (
+    eventType: 'breakdown' | 'work_order_assign' | 'work_order_complete' | 'pm_done' | 'general',
+    data: any
+  ) => {
+    sendLineAlert(lineConfig, eventType, data)
+      .then(res => {
+        if (res.success) {
+          console.log('[LINE Alert SUCCESS]', res.message);
+        } else {
+          console.warn('[LINE Alert BYPASSED/DISABLED]', res.message);
+        }
+      })
+      .catch(err => {
+        console.error('[LINE Alert ERROR]', err);
+      });
   };
 
   // Fast route routing from ticket link
@@ -694,6 +716,7 @@ export default function App() {
               currentUserName={currentUser.name}
               addAuditLog={addAuditLog}
               triggerNotification={triggerNotification}
+              triggerLineAlert={triggerLineAlert}
               onNavigateToWorkOrderWithReq={handleNavigateToWorkOrderWithReq}
             />
           )}
@@ -710,6 +733,7 @@ export default function App() {
               setSpareParts={handleSetSpareParts}
               addAuditLog={addAuditLog}
               triggerNotification={triggerNotification}
+              triggerLineAlert={triggerLineAlert}
               currentUserRole={currentUser.role}
               currentUserName={currentUser.name}
               autoSelectRequestId={autoSelectRequestId}
@@ -742,6 +766,7 @@ export default function App() {
               currentUserRole={currentUser.role}
               addAuditLog={addAuditLog}
               triggerNotification={triggerNotification}
+              triggerLineAlert={triggerLineAlert}
             />
           )}
 

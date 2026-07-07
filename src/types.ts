@@ -149,6 +149,9 @@ export interface LINEConfig {
   isEnabled: boolean;
   token: string;
   recipientGroup: string;
+  apiMode?: 'notify' | 'messaging_api';
+  channelAccessToken?: string;
+  toUserIdOrGroupId?: string;
 }
 
 export interface EmailConfig {

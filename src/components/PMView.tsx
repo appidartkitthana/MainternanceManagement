@@ -16,6 +16,7 @@ interface PMViewProps {
   currentUserRole: UserRole;
   addAuditLog: (action: string, details: string) => void;
   triggerNotification: (title: string, message: string, type: 'info' | 'warning' | 'danger' | 'success') => void;
+  triggerLineAlert?: (eventType: 'breakdown' | 'work_order_assign' | 'work_order_complete' | 'pm_done' | 'general', data: any) => void;
 }
 
 export default function PMView({
@@ -26,7 +27,8 @@ export default function PMView({
   machines,
   currentUserRole,
   addAuditLog,
-  triggerNotification
+  triggerNotification,
+  triggerLineAlert
 }: PMViewProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState<'plans' | 'calendar'>('plans');
@@ -170,6 +172,24 @@ export default function PMView({
     // Find schedule and update associated plan's LastDone & NextDue
     const targetSched = schedules.find(s => s.id === schedId);
     if (targetSched) {
+      const pmPlan = pmPlans.find(p => p.id === targetSched.pmId);
+      const machine = pmPlan ? machines.find(m => m.id === pmPlan.machineId) : undefined;
+
+      // Trigger LINE Notification for PM completion
+      if (triggerLineAlert) {
+        triggerLineAlert('pm_done', {
+          title: `บำรุงรักษาเชิงป้องกันสำเร็จ [${schedId}]`,
+          orderNo: schedId,
+          machineName: machine ? machine.name : (pmPlan ? pmPlan.machineId : 'เครื่องจักร'),
+          machineCode: machine ? machine.id : undefined,
+          location: machine ? machine.location : undefined,
+          actionTaken: pmPlan ? pmPlan.planName : 'บำรุงรักษาเครื่องจักรตามแผน',
+          technician: 'สมชาย รักดี',
+          notes: notes || 'ผ่านเกณฑ์ตรวจสอบปกติเรียบร้อย',
+          dateTime: '2026-06-10 16:30'
+        });
+      }
+
       setPmPlans(prev => prev.map(p => {
         if (p.id === targetSched.pmId) {
           const nextVal = new Date('2026-06-10');

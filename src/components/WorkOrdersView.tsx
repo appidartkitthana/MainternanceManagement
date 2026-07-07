@@ -18,6 +18,7 @@ interface WorkOrdersViewProps {
   setSpareParts: React.Dispatch<React.SetStateAction<SparePart[]>>;
   addAuditLog: (action: string, details: string) => void;
   triggerNotification: (title: string, message: string, type: 'info' | 'warning' | 'danger' | 'success') => void;
+  triggerLineAlert?: (eventType: 'breakdown' | 'work_order_assign' | 'work_order_complete' | 'pm_done' | 'general', data: any) => void;
   currentUserRole: UserRole;
   currentUserName: string;
   autoSelectRequestId?: string;
@@ -37,6 +38,7 @@ export default function WorkOrdersView({
   setSpareParts,
   addAuditLog,
   triggerNotification,
+  triggerLineAlert,
   currentUserRole,
   currentUserName,
   autoSelectRequestId,
@@ -190,6 +192,25 @@ export default function WorkOrdersView({
     }
 
     setWorkOrders(prev => [newWO, ...prev]);
+
+    // Trigger LINE Alert for Job Completed
+    if (triggerLineAlert && matchedReq) {
+      const machine = machines.find(m => m.id === matchedReq.machineId);
+      triggerLineAlert('work_order_complete', {
+        title: `ปิดงานซ่อมบำรุงเรียบร้อยแล้ว [${nextId}]`,
+        orderNo: nextId,
+        machineName: machine ? machine.name : matchedReq.machineId,
+        machineCode: machine ? machine.id : undefined,
+        location: machine ? machine.location : undefined,
+        actionTaken: solutionDetails || 'แก้ไขปัญหาเรียบร้อย',
+        technician: currentUserName,
+        totalCost: totalSpareCost + otherCost,
+        manHours: manHours,
+        notes: `สาเหตุ: ${causeAnalysis || 'N/A'}\nอาการเบื้องต้น: ${symptomDiagnosed || 'N/A'}`,
+        imageUrl: matchedReq.attachmentUrl || undefined,
+        dateTime: `${endDate} ${endTime}`
+      });
+    }
 
     addAuditLog('Create Work Order', `Completed Work Order Sheet ${nextId} linking ${targetReqId}. Spent: ฿${totalSpareCost + otherCost}`);
     triggerNotification('ปิดใบงานซ่อมบำรุงแล้ว', `เสร็จสมบูรณ์รหัสงาน ${nextId} รันไทม์ดำเนินการเก็บสเป็คเรียบร้อย`, 'success');
