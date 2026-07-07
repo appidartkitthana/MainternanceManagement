@@ -6,6 +6,10 @@
 import React, { useState, useMemo } from 'react';
 import { WorkOrder, RepairRequest, Machine, Department, User } from '../types';
 import { FileText, Download, Filter, BarChart3, TrendingUp, DollarSign, Clock, Settings, RefreshCcw } from 'lucide-react';
+import { 
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, 
+  Tooltip, Legend, LineChart, Line 
+} from 'recharts';
 
 interface ReportsViewProps {
   workOrders: WorkOrder[];
@@ -107,6 +111,59 @@ export default function ReportsView({
       mtbfValue: Math.round(mtbfValue * 10) / 10
     };
   }, [reportData, repairRequests]);
+
+  // Monthly summary calculations
+  const monthlyData = useMemo(() => {
+    const monthlyMap: Record<string, { month: string; cost: number; cases: number; hours: number }> = {};
+    
+    workOrders.forEach(wo => {
+      if (!wo.startDate) return;
+      const monthPart = wo.startDate.substring(0, 7); // e.g. "2026-05"
+      const totalCost = (wo.totalSpareCost || 0) + (wo.otherCost || 0);
+      
+      if (!monthlyMap[monthPart]) {
+        const dateObj = new Date(wo.startDate);
+        const thaiMonth = dateObj.toLocaleDateString('th-TH', { month: 'short', year: 'numeric' });
+        monthlyMap[monthPart] = {
+          month: thaiMonth,
+          cost: 0,
+          cases: 0,
+          hours: 0
+        };
+      }
+      
+      monthlyMap[monthPart].cost += totalCost;
+      monthlyMap[monthPart].cases += 1;
+      monthlyMap[monthPart].hours += (wo.manHours || 0);
+    });
+
+    return Object.keys(monthlyMap).sort().map(k => monthlyMap[k]);
+  }, [workOrders]);
+
+  // Group by machine for chart representation
+  const machineCostData = useMemo(() => {
+    const machineMap: Record<string, { name: string; cost: number; cases: number }> = {};
+    
+    workOrders.forEach(wo => {
+      const req = repairRequests.find(r => r.id === wo.requestId);
+      if (!req) return;
+      const mach = machines.find(m => m.id === req.machineId);
+      const name = mach ? mach.name : req.machineId;
+      const totalCost = (wo.totalSpareCost || 0) + (wo.otherCost || 0);
+      
+      if (!machineMap[req.machineId]) {
+        machineMap[req.machineId] = {
+          name,
+          cost: 0,
+          cases: 0
+        };
+      }
+      machineMap[req.machineId].cost += totalCost;
+      machineMap[req.machineId].cases += 1;
+    });
+
+    return Object.values(machineMap).sort((a, b) => b.cost - a.cost);
+  }, [workOrders, repairRequests, machines]);
 
   // CSV Exporter
   const handleExportCSV = () => {
@@ -326,6 +383,113 @@ export default function ReportsView({
             <span className="font-bold">฿{analytics.totalOtherCost.toLocaleString('th-TH')}</span>
           </div>
         </div>
+      </div>
+
+      {/* Graphical Analysis & Monthly Summary Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 my-2">
+        
+        {/* Graph 1: Monthly Cost Summary */}
+        <div className="bg-white dark:bg-zinc-800 p-5 rounded-md shadow-sm border border-gray-100 dark:border-zinc-700">
+          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-zinc-700/60 pb-3 mb-4">
+            <BarChart3 className="h-5 w-5 text-indigo-500" />
+            <div>
+              <h4 className="font-bold text-sm text-gray-900 dark:text-zinc-100 font-sans">สรุปค่าใช้จ่ายงานซ่อมรวมรายเดือน</h4>
+              <p className="text-[10px] text-gray-400 font-sans">ยอดรวมสะสมของค่าอะไหล่และค่าแรงวิเคราะห์ในแต่ละเดือน</p>
+            </div>
+          </div>
+          
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={monthlyData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:hidden" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" className="hidden dark:block" />
+                <XAxis dataKey="month" tick={{ fill: '#9ca3af', fontSize: 10 }} />
+                <YAxis tick={{ fill: '#9ca3af', fontSize: 10 }} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#1f2937', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '11px' }}
+                  formatter={(value: any) => [`฿${Number(value).toLocaleString('th-TH')}`, 'ค่าใช้จ่ายสะสม']}
+                />
+                <Legend wrapperStyle={{ fontSize: '10px' }} />
+                <Bar dataKey="cost" name="ค่าใช้จ่ายซ่อมรวม (บาท)" fill="#4f46e5" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Graph 2: Incident and Man-Hours Trends */}
+        <div className="bg-white dark:bg-zinc-800 p-5 rounded-md shadow-sm border border-gray-100 dark:border-zinc-700">
+          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-zinc-700/60 pb-3 mb-4">
+            <TrendingUp className="h-5 w-5 text-emerald-500" />
+            <div>
+              <h4 className="font-bold text-sm text-gray-900 dark:text-zinc-100 font-sans">แนวโน้มการขัดข้องและชั่วโมงหยุดซ่อมบำรุง</h4>
+              <p className="text-[10px] text-gray-400 font-sans">วิเคราะห์ปริมาณเคสเครื่องจักรขัดข้องควบคู่กับเวลารวมชั่วโมงแรงงาน</p>
+            </div>
+          </div>
+          
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={monthlyData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:hidden" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" className="hidden dark:block" />
+                <XAxis dataKey="month" tick={{ fill: '#9ca3af', fontSize: 10 }} />
+                <YAxis yAxisId="left" tick={{ fill: '#9ca3af', fontSize: 10 }} />
+                <YAxis yAxisId="right" orientation="right" tick={{ fill: '#9ca3af', fontSize: 10 }} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#1f2937', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '11px' }}
+                />
+                <Legend wrapperStyle={{ fontSize: '10px' }} />
+                <Line yAxisId="left" type="monotone" dataKey="cases" name="จำนวนเคสขัดข้อง (ครั้ง)" stroke="#ef4444" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                <Line yAxisId="right" type="monotone" dataKey="hours" name="รวมเวลาแรงงาน (ชม.)" stroke="#10b981" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Graph 3: Cost Distribution by Machines */}
+        <div className="bg-white dark:bg-zinc-800 p-5 rounded-md shadow-sm border border-gray-100 dark:border-zinc-700 lg:col-span-2">
+          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-zinc-700/60 pb-3 mb-4">
+            <DollarSign className="h-5 w-5 text-orange-500" />
+            <div>
+              <h4 className="font-bold text-sm text-gray-900 dark:text-zinc-100 font-sans">วิเคราะห์สัดส่วนความเสียหายรายเครื่องจักร (Machine Maintenance Cost Distribution)</h4>
+              <p className="text-[10px] text-gray-400 font-sans">เปรียบเทียบภาระค่าบำรุงรักษาและจำนวนครั้งขัดข้องสะสมในเครื่องจักรทั้งหมด</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            <div className="md:col-span-2 h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={machineCostData} layout="vertical" margin={{ top: 10, right: 10, left: 30, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:hidden" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" className="hidden dark:block" />
+                  <XAxis type="number" tick={{ fill: '#9ca3af', fontSize: 10 }} />
+                  <YAxis type="category" dataKey="name" tick={{ fill: '#9ca3af', fontSize: 10 }} width={100} />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#1f2937', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '11px' }}
+                    formatter={(value: any) => [`฿${Number(value).toLocaleString('th-TH')}`, 'รวมค่าใช้จ่าย']}
+                  />
+                  <Bar dataKey="cost" name="มูลค่ารวมความชำรุด (บาท)" fill="#f97316" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Top Cost List */}
+            <div className="space-y-4 font-sans text-xs">
+              <span className="font-bold text-gray-500 block uppercase tracking-wider text-[10px]">ลำดับเครื่องจักรที่มีมูลค่าซ่อมสะสมสูงสุด</span>
+              <div className="space-y-2">
+                {machineCostData.slice(0, 4).map((m, idx) => (
+                  <div key={idx} className="p-3 bg-zinc-50 dark:bg-zinc-800/50 border border-gray-150 dark:border-zinc-700/60 rounded flex justify-between items-center">
+                    <div>
+                      <span className="font-mono text-gray-400 font-bold block">0{idx + 1}. {m.name}</span>
+                      <span className="text-[10.5px] text-zinc-400">{m.cases} ครั้งชำรุดสะสม</span>
+                    </div>
+                    <span className="font-bold text-orange-600 dark:text-orange-400 font-mono">฿{m.cost.toLocaleString('th-TH')}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       {/* Grid Filter Matching Entries Card */}

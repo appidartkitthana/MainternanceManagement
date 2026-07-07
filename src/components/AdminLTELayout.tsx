@@ -92,10 +92,10 @@ export default function AdminLTELayout({
 
           <div className="flex items-center gap-2">
             <span className="p-1 px-2 bg-gradient-to-r from-blue-500 via-emerald-500 to-orange-500 text-white rounded font-mono font-black text-[12px] tracking-wide shadow-xs">
-              MMS
+              IDEVA-OS
             </span>
             <span className="font-sans font-bold text-sm tracking-tight hidden sm:inline-block">
-              ระบบบำรุงรักษาเครื่องจักร <span className="text-blue-500 dark:text-blue-400">โรงงานอัจฉริยะ</span>
+              Maintenance<span className="text-blue-500 dark:text-blue-400">IDEVA-OS</span> <span className="text-[10px] bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 px-1.5 py-0.5 rounded ml-1 font-mono">v1.2</span>
             </span>
           </div>
         </div>
@@ -205,12 +205,12 @@ export default function AdminLTELayout({
           
           <div className="p-4 border-b border-zinc-700/60 flex items-center gap-3 font-sans">
             <div className="h-8 w-8 rounded bg-[#3b82f6] text-white flex items-center justify-center font-bold font-mono">
-              ERP
+              IDEVA
             </div>
             {!sidebarCollapsed && (
               <div className="text-left leading-tight">
-                <span className="font-bold text-zinc-100 block">ADMIN LTE 3</span>
-                <span className="text-[9.5px] text-zinc-400 block tracking-widest uppercase">Plant Gateway</span>
+                <span className="font-bold text-zinc-100 block">IDEVA-OS CMMS</span>
+                <span className="text-[9.5px] text-zinc-400 block tracking-widest uppercase">Plant Gateway v1.2</span>
               </div>
             )}
           </div>
