@@ -94,8 +94,8 @@ export default function AdminLTELayout({
             <span className="p-1 px-2 bg-gradient-to-r from-blue-500 via-emerald-500 to-orange-500 text-white rounded font-mono font-black text-[12px] tracking-wide shadow-xs">
               IDEVA-OS
             </span>
-            <span className="font-sans font-bold text-sm tracking-tight hidden sm:inline-block">
-              Maintenance<span className="text-blue-500 dark:text-blue-400">IDEVA-OS</span> <span className="text-[10px] bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 px-1.5 py-0.5 rounded ml-1 font-mono">v1.2</span>
+            <span className="font-sans font-bold text-sm tracking-tight hidden sm:inline-block lowercase text-gray-800 dark:text-zinc-200">
+              ideva<span className="text-blue-500 dark:text-blue-400">-os-cmms</span> <span className="text-[10px] bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 px-1.5 py-0.5 rounded ml-1 font-mono normal-case">v1.2</span>
             </span>
           </div>
         </div>
@@ -209,7 +209,7 @@ export default function AdminLTELayout({
             </div>
             {!sidebarCollapsed && (
               <div className="text-left leading-tight">
-                <span className="font-bold text-zinc-100 block">IDEVA-OS CMMS</span>
+                <span className="font-bold text-zinc-100 block lowercase text-[13px]">ideva-os-cmms</span>
                 <span className="text-[9.5px] text-zinc-400 block tracking-widest uppercase">Plant Gateway v1.2</span>
               </div>
             )}

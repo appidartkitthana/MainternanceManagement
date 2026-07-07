@@ -398,8 +398,8 @@ export default function App() {
             <span className="text-emerald-500/60 text-[9px] ml-auto">EST. 2026</span>
           </div>
           <div className="space-y-1 text-[11px]">
-            <p className="text-white font-bold animate-pulse">MaintenanceIDEVA-OS Terminal Booting...</p>
-            <p className="text-emerald-500/80">Connecting cloud core: <span className="text-blue-400">MaintenanceIDEVA-OS</span></p>
+            <p className="text-white font-bold animate-pulse">ideva-os-cmms Terminal Booting...</p>
+            <p className="text-emerald-500/80">Connecting cloud core: <span className="text-blue-400">ideva-os-cmms</span></p>
             <p className="text-emerald-500/80">Firestore DB: <span className="text-orange-400">ai-studio-maintenancemanag...</span></p>
             <p className="text-emerald-500/50">Status: BINDING ENCRYPTION KEY... SUCCESS</p>
             <p className="text-emerald-500/50">Loading dataset collections: [users, machines, repair, pm, parts]</p>
@@ -558,7 +558,7 @@ export default function App() {
                     </svg>
                   </div>
                   <h4 className="font-bold text-gray-900 text-sm">ลงชื่อเข้าใช้ด้วย Google</h4>
-                  <p className="text-gray-500 text-[11px] mt-0.5">เพื่อดำเนินการต่อยัง <strong>MaintenanceIDEVA-OS</strong></p>
+                  <p className="text-gray-500 text-[11px] mt-0.5">เพื่อดำเนินการต่อยัง <strong>ideva-os-cmms</strong></p>
                 </div>
 
                 {/* Account list */}
@@ -666,7 +666,7 @@ export default function App() {
             </div>
           )}
 
-          <span className="text-[10.2px] text-zinc-500 mt-4">MaintenanceIDEVA-OS Plant Gate Terminal. Standard Operating System 2026.</span>
+          <span className="text-[10.2px] text-zinc-500 mt-4">ideva-os-cmms Plant Gate Terminal. Standard Operating System 2026.</span>
         </div>
       ) : (
         

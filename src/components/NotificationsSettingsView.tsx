@@ -730,7 +730,7 @@ export default function NotificationsSettingsView({
                           เข้าชมใบสั่งซ่อมบำรุง
                         </button>
                         <p className="text-[7px] text-center text-gray-300 font-semibold tracking-wider">
-                          POWERED BY MaintenanceIDEVA-OS
+                          POWERED BY ideva-os-cmms
                         </p>
                       </div>
 

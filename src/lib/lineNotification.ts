@@ -244,7 +244,7 @@ export function compileFlexMessagePayload(eventType: string, data: NotificationP
   // Compile full LINE Bubble payload
   return {
     type: 'flex',
-    altText: `MaintenanceIDEVA-OS: ${data.title}`,
+    altText: `ideva-os-cmms: ${data.title}`,
     contents: {
       type: 'bubble',
       header: {
@@ -322,7 +322,7 @@ export function compileFlexMessagePayload(eventType: string, data: NotificationP
           },
           {
             type: 'text',
-            text: 'POWERED BY MaintenanceIDEVA-OS',
+            text: 'POWERED BY ideva-os-cmms',
             color: '#cccccc',
             size: 'xxs',
             align: 'center',
