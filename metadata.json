@@ -1,0 +1,6 @@
+{
+  "name": "Maintenance Management System (MMS)",
+  "description": "ระบบบันทึกงานซ่อมบำรุงเครื่องจักรภายในโรงงานอุตสาหกรรม (MMS) ครบวงจร พร้อมสถิติ KPI, งานแจ้งซ่อม, บันทึกอะไหล่ และแผน PM",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
