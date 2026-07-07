@@ -1,0 +1,213 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile in the system",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "username": { "type": "string" },
+        "name": { "type": "string" },
+        "department": { "type": "string" },
+        "position": { "type": "string" },
+        "role": { "type": "string", "enum": ["Admin", "Supervisor", "Technician", "User"] },
+        "isActive": { "type": "boolean" },
+        "email": { "type": "string" }
+      },
+      "required": ["id", "username", "name", "role", "isActive"]
+    },
+    "Machine": {
+      "title": "Machine",
+      "description": "Industrial machine equipment description",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string" },
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "location": { "type": "string" },
+        "status": { "type": "string", "enum": ["Operational", "Under Maintenance", "Breakdown"] },
+        "department": { "type": "string" },
+        "installDate": { "type": "string" },
+        "criticality": { "type": "string", "enum": ["High", "Medium", "Low"] },
+        "imageUrl": { "type": "string" }
+      },
+      "required": ["id", "code", "name", "status"]
+    },
+    "RepairRequest": {
+      "title": "RepairRequest",
+      "description": "A notification or request to repair a machine",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "ticketNo": { "type": "string" },
+        "machineId": { "type": "string" },
+        "requester": { "type": "string" },
+        "department": { "type": "string" },
+        "description": { "type": "string" },
+        "priority": { "type": "string", "enum": ["Critical", "High", "Medium", "Low"] },
+        "status": { "type": "string", "enum": ["Pending", "Assigned", "In Progress", "Completed", "Cancelled"] },
+        "reportedAt": { "type": "string" },
+        "completedAt": { "type": "string" },
+        "failureType": { "type": "string" }
+      },
+      "required": ["id", "ticketNo", "machineId", "requester", "priority", "status", "reportedAt"]
+    },
+    "WorkOrder": {
+      "title": "WorkOrder",
+      "description": "An action plan or record for execution of a maintenance repair",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "orderNo": { "type": "string" },
+        "requestId": { "type": "string" },
+        "technician": { "type": "string" },
+        "status": { "type": "string", "enum": ["Draft", "Assigned", "In Progress", "Completed"] },
+        "startDate": { "type": "string" },
+        "endDate": { "type": "string" },
+        "manHours": { "type": "number" },
+        "actionTaken": { "type": "string" },
+        "totalSpareCost": { "type": "number" },
+        "otherCost": { "type": "number" },
+        "notes": { "type": "string" },
+        "usedSpares": { "type": "array" }
+      },
+      "required": ["id", "orderNo", "requestId", "status"]
+    },
+    "SparePart": {
+      "title": "SparePart",
+      "description": "Spare parts stock definition",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string" },
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "stock": { "type": "number" },
+        "minStock": { "type": "number" },
+        "price": { "type": "number" },
+        "unit": { "type": "string" },
+        "location": { "type": "string" }
+      },
+      "required": ["id", "code", "name", "stock", "price"]
+    },
+    "PreventiveMaintenance": {
+      "title": "PreventiveMaintenance",
+      "description": "PM plan for machines",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "machineId": { "type": "string" },
+        "taskName": { "type": "string" },
+        "frequency": { "type": "string" },
+        "description": { "type": "string" },
+        "lastDone": { "type": "string" },
+        "nextDue": { "type": "string" },
+        "checklist": { "type": "array" }
+      },
+      "required": ["id", "machineId", "taskName", "frequency", "nextDue"]
+    },
+    "MaintenanceSchedule": {
+      "title": "MaintenanceSchedule",
+      "description": "The scheduled occurrences of PM",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "planId": { "type": "string" },
+        "machineId": { "type": "string" },
+        "scheduledDate": { "type": "string" },
+        "status": { "type": "string", "enum": ["Scheduled", "Completed", "Overdue", "Skipped"] },
+        "assignedTo": { "type": "string" },
+        "doneAt": { "type": "string" },
+        "notes": { "type": "string" }
+      },
+      "required": ["id", "planId", "machineId", "scheduledDate", "status"]
+    },
+    "SpareTransaction": {
+      "title": "SpareTransaction",
+      "description": "Stock inventory changes tracking log",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "partId": { "type": "string" },
+        "type": { "type": "string", "enum": ["IN", "OUT"] },
+        "quantity": { "type": "number" },
+        "referenceId": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "operator": { "type": "string" }
+      },
+      "required": ["id", "partId", "type", "quantity", "timestamp", "operator"]
+    },
+    "SystemNotification": {
+      "title": "SystemNotification",
+      "description": "In-app broadcast system notifications",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string", "enum": ["info", "success", "warning", "danger"] },
+        "timestamp": { "type": "string" },
+        "isRead": { "type": "boolean" },
+        "link": { "type": "string" }
+      },
+      "required": ["id", "title", "message", "type", "timestamp", "isRead"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "The user actions history",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "user": { "type": "string" },
+        "role": { "type": "string" },
+        "action": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "details": { "type": "string" }
+      },
+      "required": ["id", "user", "role", "action", "timestamp"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "Profiles for plant workforce"
+    },
+    "machines/{machineId}": {
+      "schema": "Machine",
+      "description": "List of industrial machineries"
+    },
+    "repair_requests/{requestId}": {
+      "schema": "RepairRequest",
+      "description": "Registered breakdown/repair tickets"
+    },
+    "work_orders/{orderId}": {
+      "schema": "WorkOrder",
+      "description": "Scheduled or completed repair tasks with spare parts lists"
+    },
+    "parts/{partId}": {
+      "schema": "SparePart",
+      "description": "Spare parts list and stock tracking"
+    },
+    "pm_plans/{planId}": {
+      "schema": "PreventiveMaintenance",
+      "description": "Standard PM checklists and interval frequency plans"
+    },
+    "pm_schedules/{schedId}": {
+      "schema": "MaintenanceSchedule",
+      "description": "Realized PM task schedules and operational statuses"
+    },
+    "spare_transactions/{transId}": {
+      "schema": "SpareTransaction",
+      "description": "Inventory movement transaction history records"
+    },
+    "notifications/{notifyId}": {
+      "schema": "SystemNotification",
+      "description": "Live global system alerts"
+    },
+    "audit_logs/{logId}": {
+      "schema": "AuditLog",
+      "description": "Log of user interactions and state modifications"
+    }
+  }
+}
